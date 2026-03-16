@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For My Sonu ❤️</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --text: #ffffff;
+            --accent: #ff2a5f;
+            --accent-glow: rgba(255, 42, 95, 0.6);
+        }
+
+        /* --- Indestructible Layout --- */
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% 0%, #1a1a24 0%, #0a0a0c 70%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* --- Ambient Fireflies --- */
+        #particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .firefly {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: #ffb3c6;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 179, 198, 0.6);
+            opacity: 0;
+            animation: drift ease-in-out infinite alternate;
+        }
+        @keyframes drift {
+            0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-50px) translateX(30px); opacity: 0; }
+        }
+
+        /* --- Custom Cursor --- */
+        .cursor {
+            position: fixed; top: 0; left: 0; width: 12px; height: 12px;
+            background: var(--text); border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            box-shadow: 0 0 15px var(--text);
+            transform: translate(-50%, -50%);
+        }
+        .cursor-follower {
+            position: fixed; top: 0; left: 0; width: 40px; height: 40px;
+            border: 1px solid var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background 0.2s;
+        }
+
+        /* --- Text Container with CRITICAL Layout Fixes --- */
+        .content-wrapper {
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column; align-items: center; gap: clamp(20px, 4vh, 35px);
+            width: 100%; max-width: 650px; padding: 0 20px; box-sizing: border-box;
+        }
+
+        .text-container {
+            text-align: center; 
+            min-height: 160px; /* Crucial: Box will dynamically grow if text wraps */
+            display: flex; flex-direction: column; justify-content: flex-end;
+            width: 100%;
+            pointer-events: none; /* Let clicks pass through to the card */
+        }
+
+        h1 {
+            font-size: clamp(1.6rem, 5vw, 2.5rem); font-weight: 800; margin: 0 0 10px 0;
+            background: linear-gradient(to right, #fff, #ffccd5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            min-height: 1.2em; /* Prevents empty headlines from collapsing */
+        }
+
+        p {
+            font-size: clamp(0.9rem, 2.5vw, 1.05rem); color: #a0a0b0; margin: 0; line-height: 1.5;
+            min-height: 1.5em; /* Prevents empty subtexts from collapsing */
+        }
+
+        /* GSAP SplitText Spans */
+        .word { display: inline-block; opacity: 0; transform: translateY(20px); margin-right: 0.25em; will-change: transform, opacity; }
+
+        /* Heartbeat Heart */
+        .beating-heart { display: inline-block; animation: heartbeat 1.5s infinite; color: var(--accent); margin-left: 0.2em; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.2); } 28% { transform: scale(1); } 42% { transform: scale(1.2); } 70% { transform: scale(1); } }
+
+        /* --- The 3D Liquid Image Card --- */
+        .image-container {
+            width: clamp(260px, 80vw, 320px); 
+            height: clamp(340px, 50vh, 450px); 
+            position: relative;
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+            filter: url(#liquidTransition);
+            /* Soft glow behind the image */
+            background: radial-gradient(circle, rgba(255,42,95,0.2) 0%, transparent 70%);
+            transition: transform 0.1s linear; /* Smooth 3D interaction */
+            cursor: pointer;
+        }
+
+        .image-container img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            pointer-events: none; /* Stops image ghost-dragging glitches */
+            will-change: opacity;
+        }
+
+        #img2, #img3 { opacity: 0; }
+
+        /* --- Controls & Buttons --- */
+        .controls { display: flex; gap: 20px; height: 60px; align-items: center; justify-content: center; width: 100%; }
+
+        .btn {
+            padding: 14px 35px; background: rgba(255,255,255,0.05);
+            color: var(--text); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px; font-size: 1.1rem; font-weight: 600;
+            cursor: none; backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            white-space: nowrap;
+        }
+        .btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
+
+        /* The "Hold to Forgive" Button */
+        .hold-wrapper { display: none; position: relative; }
+        
+        .hold-btn {
+            padding: 16px 40px; background: transparent; color: var(--text);
+            border: 2px solid var(--accent); border-radius: 50px;
+            font-size: 1.2rem; font-weight: 700; cursor: none;
+            position: relative; overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 42, 95, 0.2);
+            transition: transform 0.1s;
+            touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+        }
+
+        .hold-fill {
+            position: absolute; top: 0; left: 0; width: 0%; height: 100%;
+            background: linear-gradient(90deg, #ff2a5f, #ff7eb3);
+            z-index: -1;
+            will-change: width;
+        }
+
+        .hold-text { position: relative; z-index: 1; pointer-events: none; white-space: nowrap; }
+        
+        .instruction {
+            position: absolute; bottom: -25px; width: 100%; text-align: center;
+            font-size: 0.85rem; color: var(--accent); opacity: 0.8; font-weight: bold;
+            animation: pulseText 1.5s infinite; pointer-events: none;
+        }
+
+        @keyframes pulseText { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .svg-filters { position: absolute; width: 0; height: 0; pointer-events: none; }
+
+        /* --- MOBILE MEDIA QUERY FIXES --- */
+        @media (pointer: coarse), (max-width: 768px) {
+            body, .btn, .hold-btn { cursor: auto; }
+            .cursor, .cursor-follower { display: none !important; }
+            .content-wrapper { gap: 15px; }
+            .text-container { height: 160px; justify-content: flex-end; }
+            h1 { font-size: 1.6rem; }
+            p { font-size: 0.95rem; }
+            .image-container { transform: scale(1) !important; } /* Disable 3D tilt on mobile for stability */
+        }
+    </style>
+</head>
+<body>
+
+    <svg class="svg-filters">
+        <filter id="liquidTransition" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.0" numOctaves="3" result="noise" id="turbulence" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" id="displacement" />
+        </filter>
+    </svg>
+
+    <div id="particles"></div>
+
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-follower" id="cursorFollower"></div>
+
+    <div class="content-wrapper">
+        <div class="text-container">
+            <h1 id="headline"></h1>
+            <p id="subtext"></p>
+        </div>
+
+        <div class="image-container" id="card">
+            <img src="Images/1.png" id="img1" class="card-img active" alt="Smiling">
+            <img src="Images/3.png" id="img2" class="card-img" alt="Eyes on You">
+            <img src="Images/2.png" id="img3" class="card-img" alt="Sorry">
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="nextBtn">Listen to me...</button>
+            
+            <div class="hold-wrapper" id="holdWrapper">
+                <button class="hold-btn" id="forgiveBtn">
+                    <div class="hold-fill" id="holdFill"></div>
+                    <span class="hold-text" id="btnText">Hold to Forgive<span class="beating-heart">❤️</span></span>
+                </button>
+                <div class="instruction">Press and Hold</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const card = document.getElementById('card');
+        const nextBtn = document.getElementById('nextBtn');
+        const headline = document.getElementById('headline');
+        const subtext = document.getElementById('subtext');
+        
+        // --- Ambient Particles Generator ---
+        const particleContainer = document.getElementById('particles');
+        const particleCount = window.innerWidth < 768 ? 15 : 30;
+        for(let i=0; i < particleCount; i++) {
+            let p = document.createElement('div');
+            p.className = 'firefly';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            p.style.animationDelay = (Math.random() * 4) + 's';
+            particleContainer.appendChild(p);
+        }
+
+        // --- Custom Cursor Logic (Desktop Only) ---
+        if(window.innerWidth > 768) {
+            const cursor = document.getElementById('cursor');
+            const follower = document.getElementById('cursorFollower');
+            let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
+            let followX = window.innerWidth/2, followY = window.innerHeight/2;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX; mouseY = e.clientY;
+                gsap.to(cursor, { x: mouseX, y: mouseY, duration: 0.1, ease: 'power2.out' });
+            });
+
+            gsap.ticker.add(() => {
+                followX += (mouseX - followX) * 0.15;
+                followY += (mouseY - followY) * 0.15;
+                gsap.set(follower, { x: followX, y: followY });
+            });
+
+            // Hover interactions
+            document.querySelectorAll('button, .image-container').forEach(el => {
+                el.addEventListener('mouseenter', () => gsap.to(follower, { width: 60, height: 60, background: 'rgba(255, 42, 95, 0.1)', duration: 0.3 }));
+                el.addEventListener('mouseleave', () => gsap.to(follower, { width: 40, height: 40, background: 'transparent', duration: 0.3 }));
+            });
+        }
+
+        // --- CRITICAL VISIBILITY FIX: New Word-by-Word Text Engine ---
+        function animateText(headEl, subEl, headText, subText, speed, callback) {
+            // Split headline by word
+            headEl.innerHTML = headText.split(' ').map(w => `<span class="word">${w}</span>`).join('');
+            // Split subtext by word
+            subEl.innerHTML = subText.split(' ').map(w => `<span class="word">${w}</span>`).join('');
+
+            const headlineWords = headEl.querySelectorAll('.word');
+            const subtextWords = subEl.querySelectorAll('.word');
+
+            const tl = gsap.timeline({
+                // Reset the elements once the timeline completes
+                onComplete: () => {
+                    // headEl.innerHTML = headText; // Optional: return to plain text
+                    if(callback) callback();
+                }
+            });
+
+            // Animate Headline words
+            tl.to(headlineWords, {
+                opacity: 1, y: 0,
+                duration: 0.5,
+                stagger: 0.05,
+                ease: "back.out(1.7)"
+            });
+
+            // Animate Subtext words (start slightly before headline finishes)
+            tl.to(subtextWords, {
+                opacity: 1, y: 0,
+                duration: 0.4,
+                stagger: 0.03,
+                ease: "power2.out"
+            }, "-=0.2"); // Overlap timeline by 0.2s
+        }
+
+        // --- Initial Step Text ---
+        animateText(headline, subtext, "Hey beautiful...", "Sonu bachha, I know I've not given you enough attention and time yesterday, and I haven't been giving the \"manana\" you deserve.");
+
+        // --- Dynamic 3D Interaction Logic (Desktop Only) ---
+        if(window.innerWidth > 768) {
+            card.addEventListener('mousemove', (e) => {
+                const bounds = card.getBoundingClientRect();
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                const leftX = mouseX - bounds.x;
+                const topY = mouseY - bounds.y;
+                const center = { x: leftX - bounds.width / 2, y: topY - bounds.height / 2 };
+                
+                // Tilts the card based on mouse position
+                card.style.transform = `scale3d(1.03, 1.03, 1.03) rotateY(${center.x / 10}deg) rotateX(${-center.y / 10}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                card.style.transform = 'scale3d(1, 1, 1) rotateY(0deg) rotateX(0deg)';
+                setTimeout(() => { card.style.transition = 'transform 0.1s linear'; }, 500);
+            });
+        }
+
+        // --- Liquid Morph Transition Engine ---
+        const turbulence = document.querySelector('#turbulence');
+        const displacement = document.querySelector('#displacement');
+        const filterObj = { val: 0, freq: 0 };
+        let step = 0;
+
+        const img1 = document.getElementById('img1');
+        const img2 = document.getElementById('img2');
+        const img3 = document.getElementById('img3');
+
+        function triggerLiquidTransition(currentImgId, nextImgId, newHead, newSub) {
+            const tl = gsap.timeline();
+            
+            // Fade out current text words
+            const currentWords = document.querySelectorAll('.word');
+            tl.to(currentWords, { y: -20, opacity: 0, duration: 0.3, stagger: 0.02, ease: "power2.in" });
+
+            // Animate filter distortion (Water ripple effect)
+            tl.to(filterObj, {
+                val: window.innerWidth < 768 ? 60 : 100, // Slightly less intense on mobile
+                freq: 0.04,
+                duration: 0.8,
+                ease: "power2.in",
+                onUpdate: () => {
+                    displacement.setAttribute('scale', filterObj.val);
+                    turbulence.setAttribute('baseFrequency', filterObj.freq);
+                }
+            }, "-=0.2"); // overlap by 0.2s
+
+            // Image Swap (while distorted)
+            tl.set(nextImgId, { opacity: 1 });
+            tl.set(currentImgId, { opacity: 0 });
+
+            // Undistort filter (Back to normal)
+            tl.to(filterObj, {
+                val: 0,
+                freq: 0,
+                duration: 1.2,
+                ease: "elastic.out(1, 0.3)",
+                onUpdate: () => {
+                    displacement.setAttribute('scale', filterObj.val);
+                    turbulence.setAttribute('baseFrequency', filterObj.freq);
+                }
+            });
+
+            // New text fade in
+            tl.call(() => { animateText(headline, subtext, newHead, newSub); }, null, "-=1"); // Trigger new text 1s before distortion ends
+        }
+
+        // --- Story Progress Logic ---
+        nextBtn.addEventListener('click', () => {
+            step++;
+            if (step === 1) {
+                // Transition to Step 1: Consolidated Romantic Reassurance Text
+                triggerLiquidTransition('#img1', '#img2', "...but I need you to know.", "My eyes, my heart, and my focus are always on you... I'm always there for you, and I promise to prioritize your happiness, always.");
+                nextBtn.innerText = "One more thing...";
+            } 
+            else if (step === 2) {
+                // Transition to Step 2: Fix the text about dinner and breakfast date
+                triggerLiquidTransition('#img2', '#img3', "Also bacha, you didn't have dinner...", "You didn't have dinner yesterday... please eat breakfast for me? Let's meet for a breakfast date right now? I miss you, Sonu.");
+                
+                // Hide 'Next' Button, show 'Hold to Forgive' button
+                gsap.to('#nextBtn', { opacity: 0, duration: 0.3, onComplete: () => {
+                    nextBtn.style.display = 'none';
+                    document.getElementById('holdWrapper').style.display = 'block';
+                    // Glow effect for the final button
+                    gsap.fromTo('#holdWrapper', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
+                }});
+            }
+        });
+
+        // --- The "Hold to Forgive" Mechanic ---
+        const holdBtn = document.getElementById('forgiveBtn');
+        const holdFill = document.getElementById('holdFill');
+        let holdProgress = 0;
+        let holdTimer = null;
+        let isForgiven = false;
+
+        function startHold(e) {
+            if (isForgiven) return;
+            gsap.to(holdBtn, { scale: 0.95, duration: 0.2, ease: 'power2.out' });
+            
+            // Increment progress every 20ms
+            holdTimer = setInterval(() => {
+                holdProgress += 1.5; // Speed of fill
+                holdFill.style.width = holdProgress + '%';
+                
+                // Add a shaking effect as it gets closer to 100%
+                if (holdProgress > 50) {
+                    gsap.to(holdBtn, { x: () => Math.random() * 4 - 2, y: () => Math.random() * 4 - 2, duration: 0.1 });
+                }
+
+                if (holdProgress >= 100) {
+                    clearInterval(holdTimer);
+                    triggerFinale();
+                }
+            }, 20);
+        }
+
+        function stopHold(e) {
+            if (isForgiven) return;
+            clearInterval(holdTimer);
+            gsap.to(holdBtn, { scale: 1, x: 0, y: 0, duration: 0.2 }); // Reset scale and shake
+            
+            // Drain the fill back to 0
+            gsap.to(holdFill, { 
+                width: '0%', 
+                duration: holdProgress / 100, // Drain speed is based on current fill
+                ease: "power2.out",
+                onUpdate: function() { holdProgress = parseFloat(holdFill.style.width); } // Update internal progress variable
+            });
+        }
+
+        // Mouse Events
+        holdBtn.addEventListener('mousedown', startHold);
+        holdBtn.addEventListener('mouseup', stopHold);
+        holdBtn.addEventListener('mouseleave', stopHold);
+        
+        // Touch Events (Bulletproof Mobile Fixes)
+        holdBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startHold(e); }, {passive: false});
+        holdBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopHold(e); }, {passive: false});
+        holdBtn.addEventListener('touchcancel', stopHold);
+
+        // --- The Grand Finale ---
+        function triggerFinale() {
+            isForgiven = true;
+            document.getElementById('btnText').innerHTML = "Thank you <span class='beating-heart'>❤️</span>";
+            document.querySelector('.instruction').style.display = 'none';
+            // Button explodes with a bright glow
+            gsap.to(holdBtn, { scale: 1.05, x: 0, y: 0, boxShadow: '0 0 40px rgba(255,42,95,0.8)', duration: 0.5 });
+            
+            // Loop back to Step 1 image, update text to happy finale
+            triggerLiquidTransition('#img3', '#img1', "You're the best Sonu.", "I'm coming over now. Anuv Jain songs are already playing. Let's get that breakfast date.");
+            
+            // Custom cursor explosion (Desktop only)
+            if(window.innerWidth > 768) {
+                gsap.to(cursor, { scale: 50, opacity: 0, duration: 1.2, ease: "power2.out" });
+                gsap.to(follower, { scale: 0, opacity: 0, duration: 0.6 });
+            }
+        }
+    </script>
+</body>
+</html>
